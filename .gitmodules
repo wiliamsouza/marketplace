@@ -1,0 +1,6 @@
+[submodule "promotion"]
+	path = promotion
+	url = git@github.com:wiliamsouza/promotion.git
+[submodule "product"]
+	path = product
+	url = git@github.com:wiliamsouza/product.git
