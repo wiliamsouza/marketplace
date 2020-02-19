@@ -1,0 +1,152 @@
+version: '3'
+services:
+
+  reverse-proxy:
+    image: traefik:v2.1
+    networks:
+      - internal
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+  database:
+    image: postgres:12-alpine
+    networks:
+      - internal
+    environment:
+      POSTGRES_PASSWORD: swordfish
+      POSTGRES_DB: promotion
+    volumes:
+      - ./config/init-user-db.sh:/docker-entrypoint-initdb.d/init-user-db.sh
+    ports:
+      - 5432:5432
+
+  promotion:
+    build:
+       context: ./promotion
+       dockerfile: Dockerfile
+    command: serve grpc
+    environment:
+      - DATABASE_URL=postgres://postgres:swordfish@database:5432/promotion?sslmode=disable
+      - TEST_DATABASE_URL=
+      - BLACK_FRIDAY_DATE="2020-11-25"
+      - USER_BIRTHDAY_PERCENTAGE=5
+      - MAX_DISCOUNT_PERCENTAGE=10
+      - BLACK_FRIDAY_PERCENTAGE=10
+    networks:
+      - internal
+    depends_on:
+      - database
+
+  product-grpc:
+    build:
+       context: ./product
+       dockerfile: Dockerfile
+    command: serve grpc
+    networks:
+      - internal
+    environment:
+      - LISTENADDRESS=:13666
+      - DSN=postgres://postgres:swordfish@database:5432/product?sslmode=disable
+      - TRACERENDPOINT=http://agent:14268
+      - METRIClISTENADDRESS=:8888
+    ports:
+      - 13666
+      - 8888
+    depends_on:
+      - database
+      - promotion
+
+  product-http:
+    build:
+       context: ./product
+       dockerfile: Dockerfile
+    command: serve http
+    networks:
+      - internal
+    environment:
+      - CONNECTADDRESS=product-grpc:13666
+      - LISTENADDRESS=:8013
+      - TRACERENDPOINT=http://agent:14268
+    ports:
+      - 8013
+    depends_on:
+      - product-grpc
+    labels:
+      - "traefik.http.routers.product.rule=Host(`product.docker.localhost`)"
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.8
+    networks:
+      - internal
+    ports:
+      - 16686:16686
+      - 14268
+
+  zipkin:
+    image: openzipkin/zipkin:2.11.12
+    networks:
+      - internal
+    ports:
+      - 9411:9411
+
+  prometheus:
+    image: prom/prometheus
+    networks:
+      - internal
+    command: ["--config.file=/etc/prometheus/config.yaml"]
+    volumes:
+      - ./config/prometheus/:/etc/prometheus/
+    ports:
+      - 9090:9090
+
+  grafana:
+    image: grafana/grafana
+    networks:
+      - internal
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
+
+  collector:
+    image: omnition/opencensus-collector:latest
+    networks:
+      - internal
+    command: ["--config=/etc/oc-collector-config.yaml", "--http-pprof-port=1777"]
+    volumes:
+      - ./config/oc-collector-config.yaml:/etc/oc-collector-config.yaml
+    ports:
+      - 55678
+      - 55679
+      - 1777
+      - 8888
+    depends_on:
+      - jaeger
+      - zipkin
+      - prometheus
+
+  agent:
+    image: omnition/opencensus-agent:latest
+    networks:
+      - internal
+    command: ["--config=/etc/oc-agent-config.yaml", "--http-pprof-port=1888"]
+    volumes:
+      - ./config/oc-agent-config.yaml:/etc/oc-agent-config.yaml
+    ports:
+      - 1888
+      - 14268
+      - 55678
+      - 55679
+    depends_on:
+      - collector
+
+networks:
+  internal:
+  default:
+    external:
+      name: bridge
