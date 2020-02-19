@@ -1,0 +1,22 @@
+receivers:
+  opencensus:
+    address: ":55678"
+    reconnection-delay: 2s
+  jaeger:
+    collector_http_port: 14268
+  prometheus:
+    config:
+      global:
+        scrape_interval:     15s
+        evaluation_interval: 15s
+        external_labels:
+            monitor: 'marketplace'
+      scrape_configs:
+        - job_name: 'product-grpc'
+          scrape_interval: 5s
+          static_configs:
+               - targets: ['product-grpc:8888']
+
+exporters:
+  opencensus:
+    endpoint: "collector:55678"
