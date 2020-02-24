@@ -73,11 +73,11 @@ services:
       - LISTENADDRESS=:80
       - TRACERENDPOINT=http://jaeger:14268
     ports:
-      - 8013
+      - 80
     depends_on:
       - product-grpc
     labels:
-      - "traefik.http.routers.product.rule=Host(`product.docker.localhost`)"
+      - "traefik.http.routers.product.rule=Host(`product.d.wiliam.dev`)"
 
   jaeger:
     image: jaegertracing/all-in-one:1.8
