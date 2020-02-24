@@ -87,13 +87,6 @@ services:
       - 16686:16686
       - 14268
 
-  zipkin:
-    image: openzipkin/zipkin:2.11.12
-    networks:
-      - internal
-    ports:
-      - 9411:9411
-
   prometheus:
     image: prom/prometheus
     networks:
