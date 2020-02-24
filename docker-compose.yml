@@ -52,7 +52,7 @@ services:
     environment:
       - LISTENADDRESS=:13666
       - DSN=postgres://postgres:swordfish@database:5432/product?sslmode=disable
-      - TRACERENDPOINT=http://agent:14268
+      - TRACERENDPOINT=http://jaeger:14268
       - METRIClISTENADDRESS=:8888
     ports:
       - 13666
@@ -70,8 +70,8 @@ services:
       - internal
     environment:
       - CONNECTADDRESS=product-grpc:13666
-      - LISTENADDRESS=:8013
-      - TRACERENDPOINT=http://agent:14268
+      - LISTENADDRESS=:80
+      - TRACERENDPOINT=http://jaeger:14268
     ports:
       - 8013
     depends_on:
@@ -105,38 +105,6 @@ services:
       - 3000:3000
     depends_on:
       - prometheus
-
-  collector:
-    image: omnition/opencensus-collector:latest
-    networks:
-      - internal
-    command: ["--config=/etc/oc-collector-config.yaml", "--http-pprof-port=1777"]
-    volumes:
-      - ./config/oc-collector-config.yaml:/etc/oc-collector-config.yaml
-    ports:
-      - 55678
-      - 55679
-      - 1777
-      - 8888
-    depends_on:
-      - jaeger
-      - zipkin
-      - prometheus
-
-  agent:
-    image: omnition/opencensus-agent:latest
-    networks:
-      - internal
-    command: ["--config=/etc/oc-agent-config.yaml", "--http-pprof-port=1888"]
-    volumes:
-      - ./config/oc-agent-config.yaml:/etc/oc-agent-config.yaml
-    ports:
-      - 1888
-      - 14268
-      - 55678
-      - 55679
-    depends_on:
-      - collector
 
 networks:
   internal:

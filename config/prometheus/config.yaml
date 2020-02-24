@@ -12,7 +12,7 @@
            - targets: ['prometheus:9090']
 
 
-    - job_name: 'collector'
+    - job_name: 'product-grpc'
       scrape_interval: 5s
       static_configs:
-           - targets: ['collector:8888']
+           - targets: ['product-grpc:8888']
