@@ -50,7 +50,7 @@ services:
     networks:
       - internal
     environment:
-      - LISTENADDRESS=:13666
+      - GRPCLISTENADDRESS=:13666
       - DSN=postgres://postgres:swordfish@database:5432/product?sslmode=disable
       - TRACERENDPOINT=http://jaeger:14268
       - METRIClISTENADDRESS=:8888
