@@ -3,10 +3,11 @@ import datetime
 import random
 import uuid
 
-from locust import HttpLocust, TaskSet, task
-
 import grpc
 from google.type.date_pb2 import Date
+from locust import HttpLocust, TaskSet, task
+from faker import Faker
+
 
 from promotion.grpc.v1alpha1.promotion_api_pb2_grpc import PromotionAPIStub
 from promotion.grpc.v1alpha1.promotion_api_pb2 import CreateUserRequestResponse
@@ -24,6 +25,8 @@ users = [
     "34140804-8fe9-4a17-ac6e-6b93e111d96e",
 ]
 
+fake = Faker()
+
 
 class Product(TaskSet):
     def list_products(self):
@@ -32,8 +35,8 @@ class Product(TaskSet):
 
     def create_product(self):
         product = {
-            "title": "",
-            "description": "",
+            "title": fake.catch_phrase(),
+            "description": fake.text(),
             "price_in_cents": random.choice(range(0, 1000)),
         }
         self.client.post("/v1beta1/cataloging/products")
