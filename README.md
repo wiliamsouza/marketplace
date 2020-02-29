@@ -54,7 +54,7 @@ This will create required database for services and tests.
 Create promotion schema:
 
 ```
-docker run --network marketplace_internal --env-file docker.env --entrypoint /usr/local/bin/promotionctl --rm wiliam.dev/promotion database create schema
+docker run --network marketplace_internal --env-file promotion/docker.env --entrypoint /usr/local/bin/promotionctl --rm marketplace_promotion database create schema
 
 ```
 Create product schema:
