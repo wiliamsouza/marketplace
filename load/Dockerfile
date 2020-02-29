@@ -1,4 +1,4 @@
-FROM wiliam.dev/promotion
+FROM marketplace_promotion
 RUN apk add --no-cache libffi-dev
 RUN mkdir /src/load
 ADD . /src/load
