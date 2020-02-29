@@ -90,5 +90,9 @@ docker-compose up
 Call product server HTTP rest server product endpoint.
 
 ```
-curl -H Host:product.docker.localhost http://172.17.0.1/v1/cataloging/products
+curl -v --header http://product.d.wiliam.dev/v1beta1/cataloging/products
+```
+
+```
+curl -v --header "X-USER-ID: <uuid>" http://product.d.wiliam.dev/v1beta1/cataloging/products
 ```
