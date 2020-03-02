@@ -3,9 +3,9 @@ services:
 
   reverse-proxy:
     image: traefik:v2.1
+    command: --api.insecure=true --providers.docker
     networks:
       - internal
-    command: --api.insecure=true --providers.docker
     ports:
       - "80:80"
       - "8080:8080"
@@ -30,6 +30,8 @@ services:
        context: ./promotion
        dockerfile: Dockerfile
     command: serve grpc
+    networks:
+      - internal
     environment:
       - DATABASE_URL=postgres://postgres:swordfish@database:5432/promotion?sslmode=disable
       - TEST_DATABASE_URL=
@@ -37,8 +39,8 @@ services:
       - USER_BIRTHDAY_PERCENTAGE=5
       - MAX_DISCOUNT_PERCENTAGE=10
       - BLACK_FRIDAY_PERCENTAGE=10
-    networks:
-      - internal
+    ports:
+      - 50051
     depends_on:
       - database
 
@@ -54,6 +56,7 @@ services:
       - DSN=postgres://postgres:swordfish@database:5432/product?sslmode=disable
       - TRACERENDPOINT=http://jaeger:14268
       - METRIClISTENADDRESS=:8888
+      - PROMOTIONCONNECTADDRESS=promotion:50051
     ports:
       - 13666
       - 8888
@@ -83,13 +86,13 @@ services:
     build:
        context: ./load
        dockerfile: Dockerfile
-    command: --host 'http://product-http' --no-web -c 10 -t 1h
+    command: --host 'http://product-http' --no-web -c 10 -t 10m
     networks:
       - internal
     environment:
       - DATABASE_URL=
       - TEST_DATABASE_URL=
-      - BLACK_FRIDAY_DATE="2020-11-25"
+      - BLACK_FRIDAY_DATE=2020-11-25
       - USER_BIRTHDAY_PERCENTAGE=5
       - MAX_DISCOUNT_PERCENTAGE=10
       - BLACK_FRIDAY_PERCENTAGE=10
@@ -108,9 +111,9 @@ services:
 
   prometheus:
     image: prom/prometheus
+    command: ["--config.file=/etc/prometheus/config.yaml"]
     networks:
       - internal
-    command: ["--config.file=/etc/prometheus/config.yaml"]
     volumes:
       - ./config/prometheus/:/etc/prometheus/
     ports:
