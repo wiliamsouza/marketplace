@@ -14,6 +14,7 @@ that talk to each other over gRPC.
 | product            | Go       | Provides the list of products                         |
 | promotion          | Python   | Discounts for products                                |
 | load               | Python   | Continuously sends requests imitating realistic usage |
+| API gateway        | Go       | gRPC to HTTP gateway generate from product protocol   |
 
 ## Get started
 
