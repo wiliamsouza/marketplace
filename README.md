@@ -87,7 +87,7 @@ Start all servers and database:
 docker-compose up
 
 ```
-Call product server HTTP rest server product endpoint.
+Call product server HTTP REST server product endpoint.
 
 ```
 curl -v --header http://product.d.wiliam.dev/v1beta1/cataloging/products
@@ -95,4 +95,12 @@ curl -v --header http://product.d.wiliam.dev/v1beta1/cataloging/products
 
 ```
 curl -v --header "X-USER-ID: <uuid>" http://product.d.wiliam.dev/v1beta1/cataloging/products
+```
+
+The commands above are suppose to work on linux.
+
+If you have some thoube use the follow changing `127.0.0.1` to external address of your doc.
+
+```
+curl --header "Host: product.d.wiliam.dev" http://127.0.0.1/v1beta1/cataloging/products
 ```
