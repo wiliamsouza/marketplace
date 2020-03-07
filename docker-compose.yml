@@ -39,6 +39,8 @@ services:
       - USER_BIRTHDAY_PERCENTAGE=5
       - MAX_DISCOUNT_PERCENTAGE=10
       - BLACK_FRIDAY_PERCENTAGE=10
+      - TRACER_ENDPOINT_HOST=jaeger
+      - TRACER_ENDPOINT_PORT=6831
     ports:
       - 50051
     depends_on:
