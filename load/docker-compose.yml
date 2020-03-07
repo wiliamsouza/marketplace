@@ -1,0 +1,22 @@
+version: '3'
+services:
+  load:
+    build:
+       context: .
+       dockerfile: Dockerfile
+    command: --host 'http://product-http' --no-web -c 10 -t 10m Cataloging Promotion
+    environment:
+      - DATABASE_URL=
+      - TEST_DATABASE_URL=
+      - BLACK_FRIDAY_DATE=2020-11-25
+      - USER_BIRTHDAY_PERCENTAGE=5
+      - MAX_DISCOUNT_PERCENTAGE=10
+      - BLACK_FRIDAY_PERCENTAGE=10
+      - TRACER_ENDPOINT_HOST=
+      - TRACER_ENDPOINT_PORT=0
+      - PROMOTION_GRPC_ENDPOINT=promotion:50051
+
+networks:
+  default:
+    external:
+      name: marketplace_internal

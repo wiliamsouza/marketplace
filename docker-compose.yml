@@ -82,25 +82,6 @@ services:
     labels:
       - "traefik.http.routers.product.rule=Host(`product.d.wiliam.dev`)"
 
-  load:
-    build:
-       context: ./load
-       dockerfile: Dockerfile
-    command: --host 'http://product-http' --no-web -c 10 -t 10m
-    networks:
-      - internal
-    environment:
-      - DATABASE_URL=
-      - TEST_DATABASE_URL=
-      - BLACK_FRIDAY_DATE=2020-11-25
-      - USER_BIRTHDAY_PERCENTAGE=5
-      - MAX_DISCOUNT_PERCENTAGE=10
-      - BLACK_FRIDAY_PERCENTAGE=10
-    depends_on:
-      - product-grpc
-      - product-http
-      - promotion
-
   jaeger:
     image: jaegertracing/all-in-one:1.8
     networks:
