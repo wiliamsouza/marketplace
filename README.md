@@ -28,19 +28,18 @@ Get promotion and product repository:
 
 ```
 git submodule --init
-
 ```
+
 If you want update product and promotion code run:
 
 ```
 git submodule update --remote
-
 ```
+
 ## Build docker images
 
 ```
 docker-compose build
-
 ```
 
 > :information_source: : **If you are having trouble to generate docker images**: You can point to images generate in docker hub!
@@ -58,60 +57,105 @@ Start postgresql:
 
 ```
 docker-compose up database
-
 ```
+
 This will create required database for services and tests.
 
 Create promotion schema:
 
 ```
 docker run --network marketplace_internal --env-file promotion/docker.env --entrypoint /usr/local/bin/promotionctl --rm marketplace_promotion database create schema
-
 ```
+
 Create product schema:
 
 Enter product directory:
 
 ```
 cd product/
-
 ```
+
 Create schemas:
 
 ```
 make migrate
-
+cd ..
 ```
-Populate the database with products:
 
-```
-make populate
+Stop docker compose hiting CTRL-C.
 
-```
-Stop docker compose hiting CTRL-C and start all containers running:
-
-## Usage
+##aUsage
 
 Start all servers and database:
 
 ```
 docker-compose up
+```
+
+Frist set API endpoint: 
 
 ```
+export API_ENDPOINT=http://api.d.wiliam.dev/v1beta1
+```
+
 Call product server HTTP REST server product endpoint.
 
 ```
-curl -v --header http://product.d.wiliam.dev/v1beta1/cataloging/products
+curl -v $API_ENDPOINT/cataloging/products
 ```
 
+An empty json object is returned no product exist on database. 
+
+Create a product:
+
 ```
-curl -v --header "X-USER-ID: <uuid>" http://product.d.wiliam.dev/v1beta1/cataloging/products
+docker run --network marketplace_internal --entrypoint /usr/sbin/productctl --rm marketplace_product-grpc client --host product-grpc create product --title "Product title" --description "Product description" --price 10
 ```
+
+List created product:
+
+```
+curl -v $API_ENDPOINT/cataloging/products
+```
+
+Create a user:
+```
+docker run --network marketplace_internal --env-file promotion/docker.env --entrypoint /usr/local/bin/promotionctl --rm marketplace_promotion client create user --endpoint promotion:50051 --birthday `date --utc +%Y-%m-%d`
+```
+
+This created a user which birthday is today.
+
+Set user identification as environment variable:
+
+```
+export USER_ID=
+```
+
+With the user created you can list products with discount for this user:
+
+```
+curl -v --header "X-USER-ID: $USER_ID" $API_ENDPOINT/cataloging/products
+```
+
+The product should include a discount of 5%.
+
+
+To test the graceful degradation stop the promotion service.
+Run the command inside marketplace directory:
+
+```
+docker-compose stop promotion
+```
+
+Repeat the commands to see how this keep working without discount.
+
 
 The commands above are suppose to work on linux.
 
-If you have some thoube use the follow changing `127.0.0.1` to external address of your doc.
+If you have some thoube use the follow changing `127.0.0.1` to external address of your docker.
 
 ```
-curl --header "Host: product.d.wiliam.dev" http://127.0.0.1/v1beta1/cataloging/products
+curl --header "Host: api.d.wiliam.dev" http://127.0.0.1/v1beta1/cataloging/products
 ```
+
+This way the edge router know how to properly redirect API call.
