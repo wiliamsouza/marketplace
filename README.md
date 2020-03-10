@@ -84,7 +84,7 @@ cd ..
 
 Stop docker compose hiting CTRL-C.
 
-##aUsage
+## Usage
 
 Start all servers and database:
 
@@ -109,7 +109,7 @@ An empty json object is returned no product exist on database.
 Create a product:
 
 ```
-docker run --network marketplace_internal --entrypoint /usr/sbin/productctl --rm marketplace_product-grpc client --host product-grpc create product --title "Product title" --description "Product description" --price 10
+docker run --network marketplace_internal --entrypoint /usr/sbin/productctl --rm marketplace_product-grpc client --host product-grpc create product --title "Product title" --description "Product description" --price 10000
 ```
 
 List created product:
