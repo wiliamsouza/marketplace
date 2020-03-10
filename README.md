@@ -78,6 +78,7 @@ cd product/
 Create schemas:
 
 ```
+make deps
 make migrate
 cd ..
 ```
