@@ -27,7 +27,7 @@ git clone https://github.com/wiliamsouza/maketplace.git
 Get promotion and product repository:
 
 ```
-git submodule --init
+git submodule update --init --recursive
 ```
 
 If you want update product and promotion code run:
